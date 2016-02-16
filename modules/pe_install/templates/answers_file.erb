@@ -1,0 +1,58 @@
+q_activity_database_name=pe-activity
+q_activity_database_password=strongpassword
+q_activity_database_user=pe-activity
+q_all_in_one_install=y
+q_backup_and_purge_old_database_directory=n
+q_classifier_database_name=pe-classifier
+q_classifier_database_password=strongpassword
+q_classifier_database_user=pe-classifier
+q_database_host=<%= @fqdn %>
+q_database_install=y
+q_database_port=5432
+q_database_root_password=strongpassword
+q_database_root_user=pe-postgres
+q_disable_live_management=y
+q_enable_future_parser=y
+q_fail_on_unsuccessful_master_lookup=y
+q_install=y
+q_pe_check_for_updates=y
+q_pe_database=y
+q_public_hostname=<%= @fqdn %>
+q_puppet_cloud_install=n
+q_puppet_enterpriseconsole_auth_password=strongpassword
+q_puppet_enterpriseconsole_database_name=console
+q_puppet_enterpriseconsole_database_password=strongpassword
+q_puppet_enterpriseconsole_database_user=console
+q_puppet_enterpriseconsole_httpd_port=443
+q_puppet_enterpriseconsole_install=y
+q_puppet_enterpriseconsole_master_hostname=<%= @fqdn %>
+q_puppetagent_certname=<%= @fqdn %>
+q_puppetagent_install=y
+q_puppetagent_server=<%= @fqdn %>
+q_puppetca_hostname=<%= @fqdn %>
+q_puppetdb_database_name=pe-puppetdb
+q_puppetdb_database_password=strongpassword
+q_puppetdb_database_user=pe-puppetdb
+q_puppetdb_hostname=<%= @fqdn %>
+q_puppetdb_install=y
+q_puppetdb_plaintext_port=8080
+q_puppetdb_port=8081
+q_puppetmaster_certname=<%= @fqdn %>
+q_puppetmaster_dnsaltnames=<%= @fqdn %>
+q_puppetmaster_enterpriseconsole_certname=<%= @fqdn %>
+q_puppetmaster_enterpriseconsole_hostname=<%= @fqdn %>
+q_puppetmaster_enterpriseconsole_port=443
+q_puppetmaster_install=y
+<% if @is_spde_dev -%>
+q_puppetmaster_r10k_remote=<%= @control_repo %>
+q_puppetmaster_r10k_private_key=<%= @code_manager_private_key %>
+q_puppetmaster_code_manager_auto_configure=y
+<% end -%>
+q_rbac_database_name=pe-rbac
+q_rbac_database_password=strongpassword
+q_rbac_database_user=pe-rbac
+q_run_updtvpkg=n
+q_skip_backup=y
+q_skip_master_verification=y
+q_vendor_packages_install=y
+
