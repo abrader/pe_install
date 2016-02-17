@@ -18,11 +18,11 @@ class pe_install (
     comment => 'SLEP-II Puppet Master - Dev',
   }
 
-  File { 
+  File {
     owner => 'root',
     group => 'root',
     mode  => '0700',
-  } 
+  }
 
   file { $pe_tarball:
     ensure => file,
@@ -41,11 +41,6 @@ class pe_install (
 
   # if $is_spde_dev {
   # }
-
-  #  staging::deploy { 'Install Puppet node manager gem dependency' :
-  #    source => 'puppet:///modules/pe_install/puppetclassify.tar.gz',
-  #    target => '/opt/puppetlabs/puppet/lib/ruby/gems/2.1.0/puppetclassify-0.1.3',
-  #  }
 
   file { 'Create Answers File':
     ensure  => file,
@@ -72,7 +67,7 @@ class pe_install (
     source   => 'puppet:///modules/pe_install/puppetclassify-0.1.3.gem',
     require  => Service['firewalld'],
   }
-    
+
   package { 'Install Puppetclassify Gem':
     ensure   => present,
     name     => 'puppetclassify',
@@ -87,16 +82,15 @@ class pe_install (
     environment          => 'production',
     override_environment => true,
     parent               => 'All Nodes',
-    rule                 => ['and', ['=', ['fact', 'name'], $::fqdn]],
-  }  
+    rule                 => ['and', ['~', 'name', '.*']],
+  }
 
   node_group { 'Agent-specified environment':
     ensure               => present,
     environment          => 'agent-specified',
     override_environment => true,
     parent               => 'Production environment',
-    rule                 => ['and', ['~', ['fact', 'name'], '.*']],
+    rule                 => ['and', ['~', 'name', '.*']],
   }
 
 }
-
