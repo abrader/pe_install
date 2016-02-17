@@ -44,8 +44,8 @@ q_puppetmaster_enterpriseconsole_hostname=<%= @fqdn %>
 q_puppetmaster_enterpriseconsole_port=443
 q_puppetmaster_install=y
 <% if @is_spde_dev -%>
-q_puppetmaster_r10k_remote=<%= @control_repo %>
-q_puppetmaster_r10k_private_key=<%= @code_manager_private_key %>
+q_puppetmaster_r10k_remote='<%= @control_repo %>'
+q_puppetmaster_r10k_private_key='<%= @code_manager_pub_key_path %>'
 q_puppetmaster_code_manager_auto_configure=y
 <% end -%>
 q_rbac_database_name=pe-rbac
@@ -55,4 +55,3 @@ q_run_updtvpkg=n
 q_skip_backup=y
 q_skip_master_verification=y
 q_vendor_packages_install=y
-

@@ -1,0 +1,8 @@
+.*.swp
+manifests/
+tests/
+examples/
+pkg/
+
+Gemfile.lock
+Gemfile.local
