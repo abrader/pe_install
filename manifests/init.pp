@@ -1,12 +1,12 @@
 class pe_install (
-  $is_spde_dev                   = $::is_spde_dev,
-  $pe_version                    = $::pe_version,
-  $cwd                           = $::cwd,
-  $gms_token                     = 'aSaduY8ywcshtnjDzHup',
-  $gms_server_url                = 'http://140.188.246.24',
-  $gms_project_name              = 'SLEP-II/control',
-  $control_repo                  = 'git@140.188.246.24:SLEP-II/control.git',
-  $code_manager_key_path         = '/etc/puppetlabs/puppetserver/ssh',
+  $is_spde_dev           = $::is_spde_dev,
+  $pe_version            = $::pe_version,
+  $cwd                   = $::cwd,
+  $gms_token             = 'aSaduY8ywcshtnjDzHup',
+  $gms_server_url        = 'http://140.188.246.24',
+  $gms_project_name      = 'SLEP-II/control',
+  $control_repo          = 'git@140.188.246.24:SLEP-II/control.git',
+  $code_manager_key_path = '/etc/puppetlabs/puppetserver/ssh',
 ) {
   $code_manager_private_key_path = "${code_manager_key_path}/id-control_repo.rsa"
   $code_manager_public_key_path  = "${code_manager_key_path}/id-control_repo.pub"
@@ -147,6 +147,13 @@ class pe_install (
     parent      => 'PE Infrastructure',
   }
 
+  pe_hocon_setting { 'code-manager.authenticate-webhook':
+    path    => '/etc/puppetlabs/puppetserver/conf.d/code-manager.conf',
+    setting => 'code-manager.authenticate-webhook',
+    value   => false,
+    require => Node_Group['PE Master'],
+  }
+
   node_group { 'Production environment':
     ensure               => present,
     environment          => 'production',
@@ -190,7 +197,7 @@ class pe_install (
     ensure    => running,
     enable    => true,
     require   => Service['firewalld'],
-    subscribe => File['Install custom hiera.yaml'],
+    subscribe => [ Pe_Hocon_Setting['code-manager.authenticate-webhook'], File['Install custom hiera.yaml'] ],
   }
 
 }
