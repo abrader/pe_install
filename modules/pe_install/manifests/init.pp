@@ -19,7 +19,8 @@ class pe_install (
   host { "Add record for ${::fqdn}":
     name    => $::fqdn,
     ensure  => present,
-    ip      => $::ipaddress_enp0s8,
+    #ip      => $::ipaddress_enp0s8,
+    ip      => $::ipaddress,
     comment => 'SLEP-II Puppet Master - Dev',
   }
 
@@ -60,6 +61,16 @@ class pe_install (
     before  => Vcsrepo['/etc/puppetlabs/code/modules/pe_install'],
   }
 
+  file { 'Class refresh script':
+    ensure  => file,
+    path    => '/opt/puppetlabs/puppet/bin/update-classes.sh',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0700',
+    source  => 'puppet:///modules/pe_install/update-classes.sh',
+    require => Exec['Installing Puppet Enterprise'],
+  }
+
   service { 'firewalld':
     ensure  => stopped,
     enable  => false,
@@ -95,7 +106,7 @@ class pe_install (
     mode    => '0600',
     source  => 'puppet:///modules/pe_install/code_manager_private',
     require => Service['firewalld'],
-    # before  => Git_Deploy_Key['Code Manager Deploy Key'],
+    before  => Git_Deploy_Key['Code Manager Deploy Key'],
   }
 
   file { 'Public key for Code Manager':
@@ -106,7 +117,7 @@ class pe_install (
     mode    => '0600',
     source  => 'puppet:///modules/pe_install/code_manager_public',
     require => Service['firewalld'],
-    # before  => Git_Deploy_Key['Code Manager Deploy Key'],
+    before  => Git_Deploy_Key['Code Manager Deploy Key'],
   }
 
   file { 'Temporary path for local Puppetclassify gem file':
@@ -138,33 +149,15 @@ class pe_install (
     owner    => 'pe-puppet',
     group    => 'pe-puppet',
     require  => Package['git'],
-    before   => Service['firewalld'],
   }
 
-#  node_group { 'PE Master':
-#    ensure                             => present,
-#    classes                            => {
-#      'pe_repo'                            => {},
-#      'pe_repo::platform::el_7_x86_64'     => {},
-#      'pe_install::hocon'                  => {},
-#      'puppet_enterprise::profile::master' =>
-#      {
-#        'code_manager_auto_configure' => true,
-#        'file_sync_enabled'           => true,
-#        'r10k_private_key'            => $code_manager_private_key_path,
-#        'r10k_remote'                 => $control_repo
-#      },
-#      'puppet_enterprise::master::code_manager' =>
-#      {
-#        'authenticate_webhook' => false
-#      },
-#      'puppet_enterprise::profile::master::mcollective'  => {},
-#      'puppet_enterprise::profile::mcollective::peadmin' => {}
-#    },
-#    environment => 'production',
-#    parent      => 'PE Infrastructure',
-#    require     => Vcsrepo['/etc/puppetlabs/code/modules/pe_install']
-#  }
+  exec { 'Refresh classes post vcsrepo':
+    command     => '/opt/puppetlabs/puppet/bin/update-classes.sh',
+    #path        => '/usr/bin:/usr/sbin:/bin',
+    refreshonly => true,
+    loglevel    => 'debug',
+    subscribe   => Vcsrepo['/etc/puppetlabs/code/modules/pe_install'],
+  }
 
   node_group { 'Production environment':
     ensure               => present,
@@ -182,29 +175,29 @@ class pe_install (
     rule                 => ['and', ['~', 'name', '.*']],
   }
 
-  # git_deploy_key { 'Code Manager Deploy Key':
-  #   ensure             => present,
-  #   name               => $::fqdn,
-  #   path               => $code_manager_public_key_path,
-  #   token              => $gms_token,
-  #   project_name       => $gms_project_name,
-  #   server_url         => $gms_server_url,
-  #   provider           => 'gitlab',
-  #   require            => File['Public key for Code Manager'],
-  #   before             => Node_Group['Agent-specified environment'],
-  # }
+  git_deploy_key { 'Code Manager Deploy Key':
+    ensure             => present,
+    name               => $::fqdn,
+    path               => $code_manager_public_key_path,
+    token              => $gms_token,
+    project_name       => $gms_project_name,
+    server_url         => $gms_server_url,
+    provider           => 'gitlab',
+    require            => File['Public key for Code Manager'],
+    before             => Node_Group['Agent-specified environment'],
+  }
 
-#   git_webhook { 'Code_Manager_Webhook':
-#     ensure             => present,
-#     token              => $gms_token,
-#     project_name       => $gms_project_name,
-#     server_url         => $gms_server_url,
-#     webhook_url        => "https://${::ipaddress}:8170/code-manager/v1/webhook?type=github",
-#     provider           => 'gitlab',
-#     require            => File['Public key for Code Manager'],
-#     before             => Node_Group['Agent-specified environment'],
-#     disable_ssl_verify => false,
-# }
+  git_webhook { 'Code_Manager_Webhook':
+    ensure             => present,
+    token              => $gms_token,
+    project_name       => $gms_project_name,
+    server_url         => $gms_server_url,
+    webhook_url        => "https://${::ipaddress}:8170/code-manager/v1/webhook?type=github",
+    provider           => 'gitlab',
+    require            => File['Public key for Code Manager'],
+    before             => Node_Group['Agent-specified environment'],
+    disable_ssl_verify => false,
+}
 
   service { 'pe-puppetserver':
     ensure    => running,

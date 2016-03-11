@@ -1,4 +1,9 @@
-class pe_install::hocon {
+class pe_install::hocon (
+  $control_repo          = 'git@140.188.246.24:SLEP-II/control.git',
+  $code_manager_key_path = '/etc/puppetlabs/puppetserver/ssh',
+) {
+  $code_manager_private_key_path = "${code_manager_key_path}/id-control_repo.rsa"
+  
   pe_hocon_setting { 'code-manager.authenticate-webhook':
     path    => '/etc/puppetlabs/puppetserver/conf.d/code-manager.conf',
     setting => 'code-manager.authenticate-webhook',
